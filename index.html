@@ -14,12 +14,23 @@
       text-align: center;
     }
 
-    .hero {
-      background: url('sfondo.png') no-repeat center center;
-      background-size: cover;
-      height: 100vh;
-      width: 100%;
-    }
+   .hero {
+  background: url('sfondo.png') no-repeat center center;
+  background-size: contain;
+  background-position: center top;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
+}
+
+    @media (max-width: 768px) {
+  .hero {
+    background-size: contain;
+    height: auto;
+    padding-top: 60%; /* forza l’altezza proporzionata */
+  }
+}
+
 
     .content {
       padding: 2rem;
