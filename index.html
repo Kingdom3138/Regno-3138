@@ -96,6 +96,42 @@
       font-size: 0.9rem;
       color: #7a9edb;
     }
+
+    /* Nuovo CSS per testo affiancato */
+    .info-text {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+      color: #4a90e2;
+      font-size: 1.1rem;
+      font-style: normal;
+    }
+
+    .info-text p {
+      margin: 0;
+      max-width: 45%;
+      line-height: 1.4;
+    }
+
+    .info-text .english {
+      color: #4a90e2;
+      font-style: normal;
+    }
+
+    /* Adatta per schermi piccoli: testo sotto anziché affiancato */
+    @media (max-width: 600px) {
+      .info-text {
+        flex-direction: column;
+        align-items: center;
+      }
+      .info-text p {
+        max-width: 90%;
+        margin-bottom: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -103,7 +139,11 @@
 
   <div class="content">
     <h1>Benvenuti sul sito web del Regno 3138</h1>
-    <div class="english">Welcome to the website of Kingdom 3138</div>
+    
+    <div class="info-text">
+      <p>Il Regno 3138 è una nuova realtà, nata nel 2025 dallo sforzo di 3 persone: Buty, Danny ed ItalianoItalia. I link che troverai di seguito ti riporteranno ai canali YT dei nostri contents creators, ad una calcolatrice per le date in KvK e al canale discord delle migrazioni, dal quale lo staff del Regno gestirà tutte le migrazioni.</p>
+      <p class="english">Kingdom 3138 is a new reality, born in 2025 from the effort of 3 people: Buty, Danny, and ItalianoItalia. The links below will take you to the YT channels of our content creators, to a calculator for KvK dates, and to the migration Discord channel, from which the Kingdom staff will manage all migrations.</p>
+    </div>
 
     <p>In questa pagina troverai tutti i nostri contatti utili e le info sul nostro Regno per restare aggiornato!</p>
     <div class="english">On this page you'll find all our useful contacts and info about our Kingdom to stay updated!</div>
@@ -121,4 +161,5 @@
   </footer>
 </body>
 </html>
+
 
