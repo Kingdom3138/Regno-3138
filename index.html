@@ -9,32 +9,44 @@
     body {
       margin: 0;
       font-family: 'MedievalSharp', cursive;
-      background-color: #1a1a1a;
-      color: #e6e0d0;
+      background: radial-gradient(circle, #1a1a1a 0%, #0f0f0f 100%);
+      color: #d4af37;
       text-align: center;
     }
 
-   .hero {
-  background: url('sfondo.png') no-repeat center center;
-  background-size: contain;
-  background-position: center top;
-  background-repeat: no-repeat;
-  height: 100vh;
-  width: 100%;
-}
+    .hero {
+      position: relative;
+      background: url('sfondo.png') no-repeat center top;
+      background-size: contain;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4); /* filtro trasparente scuro */
+      z-index: 1;
+    }
 
     @media (max-width: 768px) {
-  .hero {
-    background-size: contain;
-    height: auto;
-    padding-top: 60%; /* forza l’altezza proporzionata */
-  }
-}
+      .hero {
+        background-size: contain;
+        height: auto;
+        padding-top: 60%;
+      }
+    }
 
     .content {
+      position: relative;
+      z-index: 2;
       padding: 2rem;
       background: #2c2c2c;
-      border-top: 4px solid #555;
+      border: 2px solid #c8b560;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #c8b56055;
+      margin: 2rem;
     }
 
     .content h1 {
@@ -51,7 +63,7 @@
     }
 
     .links a {
-      color: #d2b48c;
+      color: #c8b560;
       text-decoration: none;
       font-size: 1.2rem;
       transition: color 0.3s ease;
@@ -91,4 +103,5 @@
 
 </body>
 </html>
+
 
