@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sezione Equipaggiamenti - Regno 3138</title>
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'MedievalSharp', cursive;
+      background: radial-gradient(circle, #0b1d3a 0%, #021029 100%);
+      color: #4a90e2;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #121f3d;
+      border: 2px solid #4a90e2;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 0 10px #4a90e277;
+    }
+
+    h1 {
+      color: #a8cdf9;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    p.intro {
+      color: #c0d9ff;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .troop-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .troop-buttons a {
+      background-color: #0f1c37;
+      border: 2px solid #4a90e2;
+      border-radius: 12px;
+      color: #a8cdf9;
+      font-size: 1.3rem;
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      transition: all 0.3s ease;
+      width: 220px;
+      text-align: center;
+    }
+
+    .troop-buttons a:hover {
+      background-color: #1e2d50;
+      color: #82b1ff;
+      box-shadow: 0 0 15px rgba(130, 177, 255, 0.5);
+    }
+
+    .test-images {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .test-image {
+      width: 260px;
+      height: 180px;
+      background-color: black;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 3px solid #4a90e2;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(74, 144, 226, 0.4);
+      font-family: 'MedievalSharp', cursive;
+    }
+
+    footer {
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: #7a9edb;
+    }
+
+    @media (min-width: 600px) {
+      .troop-buttons {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Benvenuto nella sezione equipaggiamenti</h1>
+    <p class="intro">Qui troverai i migliori equip per ogni tipologia di truppa.</p>
+
+    <div class="troop-buttons">
+      <a href="fanteria.html">⚔️ FANTERIA</a>
+      <a href="cavalleria.html">🐎 CAVALLERIA</a>
+      <a href="arcieria.html">🏹 ARCIERIA</a>
+    </div>
+
+    <div class="test-images">
+      <div class="test-image">Test</div>
+      <div class="test-image">Test</div>
+      <div class="test-image">Test</div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Regno 3138 - Immortals Eagles. Tutti i diritti riservati.
+  </footer>
+</body>
+</html>
