@@ -4,355 +4,236 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Regno 3138 - Immortals Eagles</title>
-  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Merriweather&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
-      font-family: 'MedievalSharp', cursive;
-      background: radial-gradient(circle, #d4f1ff 0%, #89cff0 100%);
-      color: #cfa93e;
+      font-family: 'Merriweather', serif;
+      background: radial-gradient(circle, #fff9f0 0%, #fdf2e4 100%);
+      color: #2b3d52;
       text-align: center;
-      padding-bottom: 250px;
-      overflow-x: hidden;
     }
 
-    .hero {
+    h1 {
+      font-family: 'MedievalSharp', cursive;
+      color: #cfa93e;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
       position: relative;
-      background: url('sfondo.png') no-repeat center top;
-      background-size: contain;
-      height: 100vh;
-      width: 100%;
+      margin-bottom: 1rem;
     }
 
-    .hero::after {
+    h1::before, h1::after {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.2);
-      z-index: 1;
+      top: 50%;
+      width: 40%;
+      height: 2px;
+      background: #cfa93e;
+    }
+    h1::before { left: -45%; }
+    h1::after { right: -45%; }
+
+    .section-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
     }
 
-    @media (max-width: 768px) {
-      .hero {
-        background-size: contain;
-        height: auto;
-        padding-top: 60%;
-      }
-    }
-
-    /* --- Layout orizzontale --- */
-    .main-container {
-      display: flex;
-      gap: 2rem;
-      padding: 2rem;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
+    .decorative-line {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, transparent, #cfa93e, transparent);
+      margin: 1rem 0;
     }
 
     .content {
-      flex: 0 0 600px;
-      position: relative;
-      z-index: 2;
+      background: #fffdf7;
+      max-width: 1200px;
+      margin: 2rem auto;
       padding: 2rem;
-      background: rgba(255, 255, 255, 0.85);
       border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-      margin: 1rem auto;
-      scroll-snap-align: start;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 2px solid #cfa93e;
+      box-shadow: 0 8px 20px rgba(207,169,62,0.2);
+      position: relative;
     }
 
-    .content:hover {
-      transform: scale(1.02);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-    }
-
-    .content h1 {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
+    .content::before {
+      content: "🦅";
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      font-size: 2rem;
       color: #cfa93e;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
-    @media (max-width: 480px) {
-      .content h1 {
-        font-size: 1.6rem;
-      }
-    }
-
-    .update-date {
-      font-size: 0.8rem;
-      color: #4a90e2;
-      font-style: italic;
-      margin-left: 10px;
-    }
-
-    .content p {
-      margin-top: 1rem;
-      margin-bottom: 0.3rem;
-      color: #2b3d52;
+    .content p, .english {
       font-size: 1.1rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      margin-bottom: 1rem;
     }
 
     .english {
-      font-size: 0.85rem;
-      color: #4a90e2;
       font-style: italic;
-      margin-bottom: 1rem;
+      color: #4a90e2;
     }
 
     .links {
-      margin-top: 2rem;
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 1rem;
+      margin-top: 1.5rem;
     }
 
-    .links a {
-      color: #2b3d52;
+    .links a, .equip-btn, .marcemeta-btn {
       text-decoration: none;
       font-size: 1.2rem;
-      transition: all 0.3s ease;
-    }
-
-    .links a:hover {
-      color: #cfa93e;
-      text-shadow: 0 0 6px rgba(207,169,62,0.6);
-    }
-
-    .equip-btn, .marcemeta-btn {
-      display: inline-block;
-      background: linear-gradient(145deg, #fff7d1, #e6c85c);
-      border: none;
+      color: #2b3d52;
+      background: linear-gradient(145deg, #fff7d1, #ffe6a0);
+      border: 1px solid #cfa93e;
       padding: 0.8rem 1.2rem;
       border-radius: 12px;
-      font-family: 'MedievalSharp', cursive;
-      color: #2b2b2b;
-      font-size: 1.2rem;
-      text-decoration: none;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(207,169,62,0.2);
     }
 
-    .equip-btn:hover, .marcemeta-btn:hover {
-      background: linear-gradient(145deg, #ffe88a, #d4b34a);
-      color: #000;
-      box-shadow: 0 0 20px rgba(207,169,62,0.8);
-    }
-
-    footer {
-      margin-top: 4rem;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #2b3d52;
-    }
-
-    .last-update {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #4a90e2;
-      font-style: italic;
-    }
-
-    .info-text {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-      margin-bottom: 2rem;
-      color: #2b3d52;
-      font-size: 1.1rem;
-    }
-
-    .info-text p {
-      margin: 0;
-      max-width: 45%;
-      line-height: 1.4;
+    .links a:hover, .equip-btn:hover, .marcemeta-btn:hover {
+      box-shadow: 0 0 20px rgba(207,169,62,0.6);
+      transform: translateY(-2px);
     }
 
     .video-thumb {
-      margin-top: 2.5rem;
-      text-align: center;
+      margin: 2rem 0;
+      position: relative;
     }
 
     .video-thumb img {
-      width: 100%;
-      max-width: 560px;
+      max-width: 100%;
       border-radius: 12px;
-      border: none;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 2px solid #cfa93e;
+      box-shadow: 0 4px 15px rgba(207,169,62,0.3);
+      transition: all 0.3s ease;
       cursor: pointer;
     }
 
     .video-thumb img:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+      box-shadow: 0 0 30px rgba(207,169,62,0.6);
     }
 
-    .video-thumb p {
-      margin-top: 0.7rem;
-      color: #2b3d52;
-      font-size: 1.1rem;
-    }
-
-    .stats-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.9);
-      border-top: 3px solid #cfa93e;
-      text-align: center;
-      z-index: 9999;
-      padding: 10px;
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
-    }
-
-    .stats-banner h1 {
-      margin: 0;
-      font-size: 1.2rem;
+    .video-thumb::before {
+      content: "👑";
+      position: absolute;
+      top: -20px;
+      left: -10px;
+      font-size: 1.5rem;
       color: #cfa93e;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
 
-    .stats-banner h1 span {
-      font-size: 0.8rem;
+    footer {
+      padding: 1rem;
+      font-size: 0.9rem;
       color: #2b3d52;
-      margin-left: 8px;
+      background: #fffdf7;
+      border-top: 2px solid #cfa93e;
+      position: relative;
     }
 
-    .stats-banner img {
-      max-height: 200px;
-      width: auto;
-      margin-top: 5px;
-      border-radius: 10px;
-      border: 2px solid #cfa93e;
+    .last-update {
+      font-style: italic;
+      color: #4a90e2;
+      margin-top: 0.5rem;
     }
 
-    /* Mobile: torna verticale */
     @media (max-width: 768px) {
-      .main-container {
-        flex-direction: column;
-        overflow-x: hidden;
-      }
-      .content {
-        flex: 1 1 auto;
-        width: 100%;
-      }
+      h1::before, h1::after { width: 25%; }
+      .links a, .equip-btn, .marcemeta-btn { font-size: 1rem; padding: 0.6rem 1rem; }
+      .content::before { top: -15px; left: 10px; }
+      .video-thumb::before { top: -15px; left: -5px; }
     }
   </style>
 </head>
 <body>
-  <div class="hero"></div>
 
-  <div class="main-container">
-    <!-- Benvenuto -->
-    <div class="content">
-      <h1>Benvenuti sul sito web del Regno 3138</h1>
-      <div class="info-text">
-        <p>Il Regno 3138 è una nuova realtà, nata nel 2025 dallo sforzo di 3 persone: Buty, Danny ed ItalianoItalia...</p>
-        <p class="english">Kingdom 3138 is a new reality, born in 2025 from the effort of 3 people...</p>
-      </div>
-      <p>In questa pagina troverai tutti i nostri contatti utili...</p>
-      <div class="links">
-        <a href="https://www.youtube.com/@%E4%B9%A1Gerr%E4%B9%A1" target="_blank">🎥 Canale YouTube - GERR</a>
-        <a href="https://www.youtube.com/@ISOLOOO" target="_blank">🎥 Canale YouTube - ISO</a>
-        <a href="https://kingdom3138.github.io/Date-per-KvK/" target="_blank">📅 Calcolatore Date KvK</a>
-        <a href="https://discord.gg/dydZCmckdP" target="_blank">💬 Discord Migrazioni</a>
-        <a href="equipaggiamenti.html" class="equip-btn">🛡️ Sezione Equipaggiamenti</a>
-        <a href="marcemeta.html" class="marcemeta-btn">🛡️ Sezione Marce meta</a>
-      </div>
-    </div>
-
-    <!-- Video presentazione -->
-    <div class="content">
-      <h1>🎬 Video di presentazione</h1>
-      <div class="video-thumb">
-        <a href="https://youtu.be/rk3gC8dL9BE" target="_blank">
-          <img src="https://img.youtube.com/vi/rk3gC8dL9BE/hqdefault.jpg" alt="Guarda il video su YouTube">
-        </a>
-        <p>Video di presentazione del Regno 3138 - By Gerr</p>
-      </div>
-      <div class="video-thumb">
-        <a href="https://youtu.be/47DsW-M0Mp8?si=R1xuYLdx2qYaVECh" target="_blank">
-          <img src="https://img.youtube.com/vi/47DsW-M0Mp8/hqdefault.jpg" alt="Guarda il video su YouTube">
-        </a>
-        <p>Il mio nuovo regno - By Iso</p>
-      </div>
-      <div class="video-thumb">
-        <a href="https://youtu.be/9YFbZu1n0p4?si=nL4AH-gMHZbwFGO6" target="_blank">
-          <img src="https://img.youtube.com/vi/9YFbZu1n0p4/hqdefault.jpg" alt="Video YouTube">
-        </a>
-        <p>Finalmente Scipio P. Maxato! - By Iso</p>
-      </div>
-    </div>
-
-    <!-- Reclutamento -->
-    <div class="content">
-      <h1>Who are we looking for?</h1>
-      <p>3138 is looking for open field players with at least two meta marches...</p>
-      <p>We are also looking for rally and garrison leaders.</p>
-      <p>You can apply on the Discord server listed in the main links.</p>
-    </div>
-
-    <!-- Best Shorts -->
-    <div class="content">
-      <h1>Best Shorts - By Iso</h1>
-      <div class="video-thumb">
-        <a href="https://youtube.com/shorts/3lt3O8APol4?si=EREkdExGVPR94k1F" target="_blank">
-          <img src="https://img.youtube.com/vi/3lt3O8APol4/hqdefault.jpg" alt="Short video by Iso">
-        </a>
-        <p>👑 I tre Re del 3138</p>
-      </div>
-      <div class="video-thumb">
-        <a href="https://youtube.com/shorts/OZefg3X1F9U?si=MxcsUP7NP-5V9f6Z" target="_blank">
-          <img src="https://img.youtube.com/vi/OZefg3X1F9U/hqdefault.jpg" alt="Short video by Iso">
-        </a>
-        <p>🔥 Nuovo Short - By Iso</p>
-      </div>
-    </div>
-
-    <!-- Music -->
-    <div class="content">
-      <h1>🎵 Music by 3138</h1>
-      <div class="video-thumb">
-        <a href="https://youtu.be/6-tFBwxf8fU?si=OIgwzKR4aD-_X9oH" target="_blank">
-          <img src="https://img.youtube.com/vi/6-tFBwxf8fU/hqdefault.jpg" alt="Ascolta la canzone del 3138">
-        </a>
-        <p>🎶 Il sound ufficiale del Regno - By 3138</p>
-      </div>
-    </div>
-
-    <!-- Intervista -->
-    <div class="content">
-      <h1>🎙️ INTERVISTA</h1>
-      <div class="video-thumb">
-        <a href="https://youtu.be/Iua_PzZO-pk?si=9i5WSzaeyWgLzsgl" target="_blank">
-          <img src="https://img.youtube.com/vi/Iua_PzZO-pk/hqdefault.jpg" alt="Intervista con Abracadabra">
-        </a>
-        <p>🎥 Intervista esclusiva - By 3138</p>
-      </div>
+  <div class="content">
+    <span class="section-icon">👑</span>
+    <h1>Benvenuti sul sito web del Regno 3138</h1>
+    <div class="decorative-line"></div>
+    <p>Il Regno 3138 è una nuova realtà, nata nel 2025 dallo sforzo di 3 persone: Buty, Danny ed ItalianoItalia...</p>
+    <p class="english">Kingdom 3138 is a new reality, born in 2025 from the effort of 3 people...</p>
+    <div class="links">
+      <a href="https://www.youtube.com/@%E4%B9%A1Gerr%E4%B9%A1" target="_blank">🎥 Canale YouTube - GERR</a>
+      <a href="https://www.youtube.com/@ISOLOOO" target="_blank">🎥 Canale YouTube - ISO</a>
+      <a href="https://kingdom3138.github.io/Date-per-KvK/" target="_blank">📅 Calcolatore Date KvK</a>
+      <a href="https://discord.gg/dydZCmckdP" target="_blank">💬 Discord Migrazioni</a>
+      <a href="equipaggiamenti.html" class="equip-btn">🛡️ Sezione Equipaggiamenti</a>
+      <a href="marcemeta.html" class="marcemeta-btn">🛡️ Sezione Marce meta</a>
     </div>
   </div>
 
-  <div class="stats-banner">
-    <h1>📊 STATS KVK <span>(Aggiornamento il 16/08/2025)</span></h1>
-    <img src="stats_zone5.png" alt="Stats KVK">
+  <div class="content">
+    <span class="section-icon">🎬</span>
+    <h1>Video di presentazione</h1>
+    <div class="decorative-line"></div>
+    <div class="video-thumb">
+      <a href="https://youtu.be/rk3gC8dL9BE" target="_blank"><img src="https://img.youtube.com/vi/rk3gC8dL9BE/hqdefault.jpg" alt="Video di presentazione"></a>
+      <p>Video di presentazione del Regno 3138 - By Gerr</p>
+    </div>
+    <div class="video-thumb">
+      <a href="https://youtu.be/47DsW-M0Mp8?si=R1xuYLdx2qYaVECh" target="_blank"><img src="https://img.youtube.com/vi/47DsW-M0Mp8/hqdefault.jpg" alt="Video Iso"></a>
+      <p>Il mio nuovo regno - By Iso</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <span class="section-icon">🦅</span>
+    <h1>Best Shorts - By Iso</h1>
+    <div class="decorative-line"></div>
+    <div class="video-thumb">
+      <a href="https://youtube.com/shorts/3lt3O8APol4?si=EREkdExGVPR94k1F" target="_blank"><img src="https://img.youtube.com/vi/3lt3O8APol4/hqdefault.jpg" alt="Short 1"></a>
+      <p>👑 I tre Re del 3138</p>
+    </div>
+    <div class="video-thumb">
+      <a href="https://youtube.com/shorts/OZefg3X1F9U?si=MxcsUP7NP-5V9f6Z" target="_blank"><img src="https://img.youtube.com/vi/OZefg3X1F9U/hqdefault.jpg" alt="Short 2"></a>
+      <p>🔥 Nuovo Short - By Iso</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <span class="section-icon">🎵</span>
+    <h1>Music by 3138</h1>
+    <div class="decorative-line"></div>
+    <div class="video-thumb">
+      <a href="https://youtu.be/6-tFBwxf8fU?si=OIgwzKR4aD-_X9oH" target="_blank"><img src="https://img.youtube.com/vi/6-tFBwxf8fU/hqdefault.jpg" alt="Music"></a>
+      <p>Il sound ufficiale del Regno - By 3138</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <span class="section-icon">🎙️</span>
+    <h1>INTERVISTA</h1>
+    <div class="decorative-line"></div>
+    <div class="video-thumb">
+      <a href="https://youtu.be/Iua_PzZO-pk?si=9i5WSzaeyWgLzsgl" target="_blank"><img src="https://img.youtube.com/vi/Iua_PzZO-pk/hqdefault.jpg" alt="Intervista"></a>
+      <p>Intervista esclusiva - By 3138</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <h1>Who are we looking for?</h1>
+    <div class="decorative-line"></div>
+    <p>3138 is looking for open field players with at least two meta marches...</p>
+    <p>We are also looking for rally and garrison leaders.</p>
+    <p>You can apply on the Discord server listed in the main links.</p>
   </div>
 
   <footer>
     &copy; 2025 Regno 3138 - Immortals Eagles. Tutti i diritti riservati.
-    <div class="last-update">🕒 Ultimo aggiornamento: <span id="last-update">18/08/2025 22:47</span></div>
+    <div class="last-update">🕒 Ultimo aggiornamento: 18/08/2025 22:47</div>
   </footer>
+
 </body>
 </html>
-
 
 
 
