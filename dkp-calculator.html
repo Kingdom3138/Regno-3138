@@ -73,6 +73,25 @@ font-weight:bold;
 font-size:20px;
 }
 
+/* GAUGE */
+
+.gauge-box{
+margin-top:40px;
+position:relative;
+width:260px;
+margin-left:auto;
+margin-right:auto;
+}
+
+#gaugeText{
+position:absolute;
+top:60%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:28px;
+font-weight:bold;
+}
+
 </style>
 
 </head>
@@ -108,6 +127,30 @@ font-size:20px;
 </tr>
 
 </table>
+
+<div class="gauge-box">
+
+<svg width="260" height="160" viewBox="0 0 260 160">
+
+<path d="M20 140 A110 110 0 0 1 240 140"
+stroke="#ddd"
+stroke-width="20"
+fill="none"/>
+
+<path id="gaugeFill"
+d="M20 140 A110 110 0 0 1 240 140"
+stroke="#cfa93e"
+stroke-width="20"
+fill="none"
+stroke-dasharray="345"
+stroke-dashoffset="345"
+stroke-linecap="round"/>
+
+</svg>
+
+<div id="gaugeText">0%</div>
+
+</div>
 
 </div>
 
@@ -201,6 +244,8 @@ dkpCell.style.color = color;
 
 document.getElementById("risultato").style.display="table";
 
+animateGauge(percent,color);
+
 return;
 
 }
@@ -208,6 +253,29 @@ return;
 }
 
 alert("Player non trovato");
+
+}
+
+function animateGauge(percent,color){
+
+let gauge = document.getElementById("gaugeFill");
+let text = document.getElementById("gaugeText");
+
+let max = 345;
+
+let progress = Math.min(percent,200);
+
+let offset = max - (max * progress / 200);
+
+gauge.style.transition = "stroke-dashoffset 1.5s ease";
+
+gauge.style.strokeDashoffset = offset;
+
+gauge.style.stroke = color;
+
+text.style.color = color;
+
+text.innerText = percent.toFixed(1) + "%";
 
 }
 
