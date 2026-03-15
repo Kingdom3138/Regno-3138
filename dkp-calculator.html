@@ -21,7 +21,7 @@ padding:40px;
 
 .box{
 background:white;
-max-width:700px;
+max-width:720px;
 margin:auto;
 padding:30px;
 border-radius:16px;
@@ -70,26 +70,49 @@ color:white;
 
 #rdkp{
 font-weight:bold;
-font-size:20px;
+font-size:22px;
 }
 
-/* GAUGE */
+/* TACHIMETRO */
 
-.gauge-box{
-margin-top:40px;
-position:relative;
+.gauge{
 width:260px;
-margin-left:auto;
-margin-right:auto;
+height:140px;
+margin:40px auto 10px auto;
+position:relative;
 }
 
-#gaugeText{
-position:absolute;
-top:60%;
-left:50%;
-transform:translate(-50%,-50%);
+.gauge svg{
+width:100%;
+height:100%;
+}
+
+.needle{
+transform-origin:130px 120px;
+transform:rotate(-90deg);
+transition:transform 1.5s ease;
+}
+
+.percent-display{
 font-size:28px;
 font-weight:bold;
+margin-top:-10px;
+}
+
+.progress-bar{
+width:100%;
+background:#eee;
+border-radius:10px;
+overflow:hidden;
+height:28px;
+margin-top:20px;
+}
+
+.progress-fill{
+height:100%;
+width:0%;
+background:green;
+transition:width 1.5s ease;
 }
 
 </style>
@@ -108,12 +131,30 @@ font-weight:bold;
 
 <button onclick="cerca()">Calcola</button>
 
+<div class="gauge">
+
+<svg viewBox="0 0 260 140">
+
+<path d="M20 120 A110 110 0 0 1 240 120" fill="none" stroke="#ddd" stroke-width="20"/>
+
+<line x1="130" y1="120" x2="130" y2="30" stroke="red" stroke-width="6" class="needle" id="needle"/>
+
+</svg>
+
+</div>
+
+<div class="percent-display" id="percentDisplay">0%</div>
+
+<div class="progress-bar">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+
 <table id="risultato" style="display:none;">
 
 <tr>
 <th>ID</th>
 <th>Nome</th>
-<th>Morti</th>
+<th>Morti Totali</th>
 <th>KP</th>
 <th>Percentuale DKP</th>
 </tr>
@@ -128,81 +169,60 @@ font-weight:bold;
 
 </table>
 
-<div class="gauge-box">
-
-<svg width="260" height="160" viewBox="0 0 260 160">
-
-<path d="M20 140 A110 110 0 0 1 240 140"
-stroke="#ddd"
-stroke-width="20"
-fill="none"/>
-
-<path id="gaugeFill"
-d="M20 140 A110 110 0 0 1 240 140"
-stroke="#cfa93e"
-stroke-width="20"
-fill="none"
-stroke-dasharray="345"
-stroke-dashoffset="345"
-stroke-linecap="round"/>
-
-</svg>
-
-<div id="gaugeText">0%</div>
-
-</div>
-
 </div>
 
 <script>
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTpr4XDQMT_znXF3gqTTUfcZssfr6pePtMYFHUBXyx_CNu0yNaVrAXqzOo-hyTEWltMo7H7z3_V4WfS/pub?gid=0&single=true&output=csv";
+const sheetURL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTpr4XDQMT_znXF3gqTTUfcZssfr6pePtMYFHUBXyx_CNu0yNaVrAXqzOo-hyTEWltMo7H7z3_V4WfS/pub?gid=0&single=true&output=csv";
 
 async function cerca(){
 
-let id = document.getElementById("playerID").value;
+let id=document.getElementById("playerID").value;
 
-let response = await fetch(sheetURL);
-let data = await response.text();
+let response=await fetch(sheetURL);
+let data=await response.text();
 
-let rows = data.split("\n");
+let rows=data.split("\n");
 
 for(let i=1;i<rows.length;i++){
 
-let cols = rows[i].split(",");
+let cols=rows[i].split(",");
 
-let pid = cols[0];
-let nome = cols[1];
-let power = parseInt(cols[2]);
-let morti = parseInt(cols[3]);
-let kp = parseInt(cols[4]);
+let pid=cols[0];
+let nome=cols[1];
+let power=parseInt(cols[2]);
+let mortiT4=parseInt(cols[3]);
+let mortiT5=parseInt(cols[4]);
+let kp=parseInt(cols[5]);
 
-if(pid == id){
+let morti=mortiT4+mortiT5;
+
+if(pid==id){
 
 let mortiReq=0;
 let kpReq=0;
 
-if(power >= 100000000){
+if(power>=100000000){
 mortiReq=2000000;
 kpReq=400000000;
 }
-else if(power >= 90000000){
+else if(power>=90000000){
 mortiReq=1500000;
 kpReq=350000000;
 }
-else if(power >= 80000000){
+else if(power>=80000000){
 mortiReq=1200000;
 kpReq=300000000;
 }
-else if(power >= 70000000){
+else if(power>=70000000){
 mortiReq=1000000;
 kpReq=200000000;
 }
-else if(power >= 60000000){
+else if(power>=60000000){
 mortiReq=800000;
 kpReq=100000000;
 }
-else if(power >= 50000000){
+else if(power>=50000000){
 mortiReq=500000;
 kpReq=55000000;
 }
@@ -211,40 +231,67 @@ mortiReq=300000;
 kpReq=25000000;
 }
 
-let pm = (morti / mortiReq) * 100;
-let pk = (kp / kpReq) * 100;
+let pm=(morti/mortiReq)*100;
+let pk=(kp/kpReq)*100;
 
-let percent = ((pm + pk) / 2);
+let percent=((pm+pk)/2);
 
-let percentRounded = percent.toFixed(2);
+let percentRounded=percent.toFixed(2);
 
-let color = "";
+let color="";
+let barColor="";
 
-if(percent < 50){
-color = "red";
+if(percent<50){
+color="red";
+barColor="#e74c3c";
 }
-else if(percent < 80){
-color = "gold";
+else if(percent<80){
+color="gold";
+barColor="#f1c40f";
 }
-else if(percent < 100){
-color = "green";
+else if(percent<100){
+color="green";
+barColor="#2ecc71";
 }
 else{
-color = "deepskyblue";
+color="deepskyblue";
+barColor="#00bfff";
 }
 
-document.getElementById("rid").innerText = pid;
-document.getElementById("rnome").innerText = nome;
-document.getElementById("rmorti").innerText = morti.toLocaleString();
-document.getElementById("rkp").innerText = kp.toLocaleString();
+document.getElementById("rid").innerText=pid;
+document.getElementById("rnome").innerText=nome;
+document.getElementById("rmorti").innerText=morti.toLocaleString();
+document.getElementById("rkp").innerText=kp.toLocaleString();
 
-let dkpCell = document.getElementById("rdkp");
-dkpCell.innerText = percentRounded + "%";
-dkpCell.style.color = color;
+let dkpCell=document.getElementById("rdkp");
+dkpCell.innerText=percentRounded+"%";
+dkpCell.style.color=color;
 
 document.getElementById("risultato").style.display="table";
 
-animateGauge(percent,color);
+let needle=document.getElementById("needle");
+let rotation=(-90)+(Math.min(percent,100)*1.8);
+needle.style.transform="rotate("+rotation+"deg)";
+
+let bar=document.getElementById("progressFill");
+bar.style.background=barColor;
+bar.style.width=Math.min(percent,100)+"%";
+
+let display=document.getElementById("percentDisplay");
+
+let counter=0;
+let target=Math.round(percent);
+
+let interval=setInterval(function(){
+
+if(counter>=target){
+clearInterval(interval);
+}else{
+counter++;
+display.innerText=counter+"%";
+}
+
+},20);
 
 return;
 
@@ -253,29 +300,6 @@ return;
 }
 
 alert("Player non trovato");
-
-}
-
-function animateGauge(percent,color){
-
-let gauge = document.getElementById("gaugeFill");
-let text = document.getElementById("gaugeText");
-
-let max = 345;
-
-let progress = Math.min(percent,200);
-
-let offset = max - (max * progress / 200);
-
-gauge.style.transition = "stroke-dashoffset 1.5s ease";
-
-gauge.style.strokeDashoffset = offset;
-
-gauge.style.stroke = color;
-
-text.style.color = color;
-
-text.innerText = percent.toFixed(1) + "%";
 
 }
 
