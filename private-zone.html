@@ -165,6 +165,10 @@ let id = cols[0];
 let nome = cols[1];
 let power = parseInt(cols[2].replace(/,/g,""));
 
+/* ESCLUDE PLAYER SOTTO 50M */
+
+if(power < 50000000) continue;
+
 let mortiT5 = parseInt(cols[4].replace(/,/g,""));
 let mortiT4 = parseInt(cols[5].replace(/,/g,""));
 
@@ -198,10 +202,6 @@ kpReq=100000000;
 else if(power >= 50000000){
 mortiReq=500000;
 kpReq=55000000;
-}
-else{
-mortiReq=300000;
-kpReq=25000000;
 }
 
 let pm = (morti / mortiReq) * 100;
@@ -258,7 +258,7 @@ dkpCell.style.color = color;
 
 let avg = totalDKP / players.length;
 
-document.getElementById("totPlayers").innerText = "Totale Player: "+players.length;
+document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.length;
 document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
 document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
 document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
