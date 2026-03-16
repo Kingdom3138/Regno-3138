@@ -21,7 +21,7 @@ padding:40px;
 
 .box{
 background:white;
-max-width:1000px;
+max-width:1100px;
 margin:auto;
 padding:30px;
 border-radius:16px;
@@ -29,9 +29,7 @@ border:2px solid #cfa93e;
 box-shadow:0 0 20px rgba(207,169,62,0.4);
 }
 
-h1{
-color:#cfa93e;
-}
+h1{color:#cfa93e;}
 
 input{
 padding:10px;
@@ -71,6 +69,10 @@ margin-top:20px;
 font-size:18px;
 }
 
+#grafico{
+margin-top:30px;
+}
+
 </style>
 
 </head>
@@ -82,13 +84,9 @@ font-size:18px;
 <h1>👑 Leadership Private Zone</h1>
 
 <div id="login">
-
 <p>Inserisci la password leadership</p>
-
 <input type="password" id="pass">
-
 <button onclick="login()">Accedi</button>
-
 </div>
 
 <div id="panel" style="display:none;">
@@ -96,13 +94,13 @@ font-size:18px;
 <h2>Statistiche Regno</h2>
 
 <div class="stats">
-
 <div id="totPlayers"></div>
 <div id="avgDKP"></div>
 <div id="above100"></div>
 <div id="below50"></div>
-
 </div>
+
+<canvas id="grafico" height="120"></canvas>
 
 <table id="ranking">
 
@@ -114,6 +112,8 @@ font-size:18px;
 <th>Morti</th>
 <th>KP</th>
 <th>DKP %</th>
+<th>% Morti</th>
+<th>% KP</th>
 </tr>
 
 </table>
@@ -122,59 +122,42 @@ font-size:18px;
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
 const PASSWORD = "3138leaders";
 
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLngmDm1JlOySiZYDlj411waYwB-nqXPs0poRn6PyPFiDHIWs4UMCJw4_rmGIyZxpumDp6xOs7iMAQ/pub?gid=1963599906&single=true&output=csv";
 
-/* FOGLIO POWER KVK */
 const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQI0YbKeIe_pzwujvocelYi1tWy63MyKmieSatj2uBVORlAipQfYocqqZJLw_htYvtNbJww5PwoBfa/pub?gid=142693570&single=true&output=csv";
 
 function login(){
-
 let p = document.getElementById("pass").value;
 
 if(p === PASSWORD){
-
 document.getElementById("login").style.display="none";
 document.getElementById("panel").style.display="block";
-
 carica();
-
-}
-else{
-
+}else{
 alert("Password errata");
-
 }
-
 }
 
 async function carica(){
 
-/* CARICA POWER KVK */
 let powerMap = {};
-
 let responsePower = await fetch(sheetPowerURL);
 let dataPower = await responsePower.text();
 let rowsPower = dataPower.split("\n");
 
 for(let i=1;i<rowsPower.length;i++){
-
 let colsP = rowsPower[i].split(",");
-
-let idP = colsP[0];
-let powerP = parseInt(colsP[1].replace(/,/g,""));
-
-powerMap[idP] = powerP;
-
+powerMap[colsP[0]] = parseInt(colsP[1].replace(/,/g,""));
 }
 
-/* FOGLIO PRINCIPALE */
 let response = await fetch(sheetURL);
 let data = await response.text();
-
 let rows = data.split("\n");
 
 let players = [];
@@ -185,83 +168,51 @@ let cols = rows[i].split(",");
 
 let id = cols[0];
 let nome = cols[1];
-
-/* USA POWER KVK */
 let power = powerMap[id];
 
 if(!power) continue;
-
-/* ESCLUDE SOTTO 50M (SU POWER KVK) */
 if(power < 50000000) continue;
 
-let mortiT5 = parseInt(cols[4].replace(/,/g,""));
-let mortiT4 = parseInt(cols[5].replace(/,/g,""));
-
-let morti = mortiT5 + mortiT4;
-
+let morti = parseInt(cols[4].replace(/,/g,"")) + parseInt(cols[5].replace(/,/g,""));
 let kp = parseInt(cols[6].replace(/,/g,""));
 
-let mortiReq=0;
-let kpReq=0;
+let mortiReq=0, kpReq=0;
 
-if(power >= 100000000){
-mortiReq=2000000;
-kpReq=400000000;
-}
-else if(power >= 90000000){
-mortiReq=1500000;
-kpReq=350000000;
-}
-else if(power >= 80000000){
-mortiReq=1200000;
-kpReq=300000000;
-}
-else if(power >= 70000000){
-mortiReq=1000000;
-kpReq=200000000;
-}
-else if(power >= 60000000){
-mortiReq=800000;
-kpReq=100000000;
-}
-else if(power >= 50000000){
-mortiReq=500000;
-kpReq=55000000;
-}
+if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
+else if(power >= 90000000){mortiReq=1500000; kpReq=350000000;}
+else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
+else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
+else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
+else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 
 let pm = (morti / mortiReq) * 100;
 let pk = (kp / kpReq) * 100;
+let dkp = (pm + pk) / 2;
 
-let dkp = ((pm + pk) / 2);
-
-players.push({
-id:id,
-nome:nome,
-power:power,
-morti:morti,
-kp:kp,
-dkp:dkp
-});
-
+players.push({id,nome,power,morti,kp,dkp,pm,pk});
 }
 
 players.sort((a,b)=>b.dkp-a.dkp);
 
 let table = document.getElementById("ranking");
 
-let totalDKP = 0;
-let above100 = 0;
-let below50 = 0;
+let totalDKP=0, above100=0, below50=0;
+
+/* GRAFICO */
+let fasce = [0,0,0,0];
 
 players.forEach((p,i)=>{
 
 totalDKP += p.dkp;
+if(p.dkp>=100) above100++;
+if(p.dkp<50) below50++;
 
-if(p.dkp >= 100) above100++;
-if(p.dkp < 50) below50++;
+if(p.dkp<50) fasce[0]++;
+else if(p.dkp<80) fasce[1]++;
+else if(p.dkp<100) fasce[2]++;
+else fasce[3]++;
 
 let color="red";
-
 if(p.dkp>=50) color="gold";
 if(p.dkp>=80) color="green";
 if(p.dkp>=100) color="deepskyblue";
@@ -279,6 +230,18 @@ let dkpCell = row.insertCell(6);
 dkpCell.innerText = p.dkp.toFixed(2)+"%";
 dkpCell.style.color = color;
 
+/* % MORTI con highlight */
+let mortiCell = row.insertCell(7);
+mortiCell.innerText = p.pm.toFixed(1)+"%";
+
+if(p.pm > 50){
+mortiCell.style.color = "red";
+mortiCell.style.textDecoration = "underline";
+}
+
+/* % KP */
+row.insertCell(8).innerText = p.pk.toFixed(1)+"%";
+
 });
 
 let avg = totalDKP / players.length;
@@ -287,6 +250,21 @@ document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.le
 document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
 document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
 document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
+
+/* CREA GRAFICO */
+new Chart(document.getElementById("grafico"),{
+type:"bar",
+data:{
+labels:["<50%","50-79%","80-99%","100%+"],
+datasets:[{
+data:fasce
+}]
+},
+options:{
+animation:{duration:1500},
+plugins:{legend:{display:false}}
+}
+});
 
 }
 
