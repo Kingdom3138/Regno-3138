@@ -128,6 +128,9 @@ const PASSWORD = "3138leaders";
 
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLngmDm1JlOySiZYDlj411waYwB-nqXPs0poRn6PyPFiDHIWs4UMCJw4_rmGIyZxpumDp6xOs7iMAQ/pub?gid=1963599906&single=true&output=csv";
 
+/* FOGLIO POWER KVK */
+const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQI0YbKeIe_pzwujvocelYi1tWy63MyKmieSatj2uBVORlAipQfYocqqZJLw_htYvtNbJww5PwoBfa/pub?gid=142693570&single=true&output=csv";
+
 function login(){
 
 let p = document.getElementById("pass").value;
@@ -150,6 +153,25 @@ alert("Password errata");
 
 async function carica(){
 
+/* CARICA POWER KVK */
+let powerMap = {};
+
+let responsePower = await fetch(sheetPowerURL);
+let dataPower = await responsePower.text();
+let rowsPower = dataPower.split("\n");
+
+for(let i=1;i<rowsPower.length;i++){
+
+let colsP = rowsPower[i].split(",");
+
+let idP = colsP[0];
+let powerP = parseInt(colsP[1].replace(/,/g,""));
+
+powerMap[idP] = powerP;
+
+}
+
+/* FOGLIO PRINCIPALE */
 let response = await fetch(sheetURL);
 let data = await response.text();
 
@@ -163,10 +185,13 @@ let cols = rows[i].split(",");
 
 let id = cols[0];
 let nome = cols[1];
-let power = parseInt(cols[2].replace(/,/g,""));
 
-/* ESCLUDE PLAYER SOTTO 50M */
+/* USA POWER KVK */
+let power = powerMap[id];
 
+if(!power) continue;
+
+/* ESCLUDE SOTTO 50M (SU POWER KVK) */
 if(power < 50000000) continue;
 
 let mortiT5 = parseInt(cols[4].replace(/,/g,""));
