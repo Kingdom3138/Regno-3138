@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Leadership Panel - Kingdom 3138</title>
+
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'MedievalSharp',cursive;
+background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
+text-align:center;
+padding:40px;
+}
+
+.box{
+background:white;
+max-width:1000px;
+margin:auto;
+padding:30px;
+border-radius:16px;
+border:2px solid #cfa93e;
+box-shadow:0 0 20px rgba(207,169,62,0.4);
+}
+
+h1{
+color:#cfa93e;
+}
+
+input{
+padding:10px;
+font-size:18px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+font-size:18px;
+border-radius:10px;
+border:none;
+background:#cfa93e;
+color:white;
+cursor:pointer;
+}
+
+table{
+margin-top:30px;
+width:100%;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #ddd;
+padding:10px;
+}
+
+th{
+background:#cfa93e;
+color:white;
+}
+
+.stats{
+margin-top:20px;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>👑 Leadership Private Zone</h1>
+
+<div id="login">
+
+<p>Inserisci la password leadership</p>
+
+<input type="password" id="pass">
+
+<button onclick="login()">Accedi</button>
+
+</div>
+
+<div id="panel" style="display:none;">
+
+<h2>Statistiche Regno</h2>
+
+<div class="stats">
+
+<div id="totPlayers"></div>
+<div id="avgDKP"></div>
+<div id="above100"></div>
+<div id="below50"></div>
+
+</div>
+
+<table id="ranking">
+
+<tr>
+<th>Rank</th>
+<th>ID</th>
+<th>Nome</th>
+<th>Potere</th>
+<th>Morti</th>
+<th>KP</th>
+<th>DKP %</th>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const PASSWORD = "3138leaders";
+
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLngmDm1JlOySiZYDlj411waYwB-nqXPs0poRn6PyPFiDHIWs4UMCJw4_rmGIyZxpumDp6xOs7iMAQ/pub?gid=1963599906&single=true&output=csv";
+
+function login(){
+
+let p = document.getElementById("pass").value;
+
+if(p === PASSWORD){
+
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
+
+carica();
+
+}
+else{
+
+alert("Password errata");
+
+}
+
+}
+
+async function carica(){
+
+let response = await fetch(sheetURL);
+let data = await response.text();
+
+let rows = data.split("\n");
+
+let players = [];
+
+for(let i=1;i<rows.length;i++){
+
+let cols = rows[i].split(",");
+
+let id = cols[0];
+let nome = cols[1];
+let power = parseInt(cols[2].replace(/,/g,""));
+
+let mortiT5 = parseInt(cols[4].replace(/,/g,""));
+let mortiT4 = parseInt(cols[5].replace(/,/g,""));
+
+let morti = mortiT5 + mortiT4;
+
+let kp = parseInt(cols[6].replace(/,/g,""));
+
+let mortiReq=0;
+let kpReq=0;
+
+if(power >= 100000000){
+mortiReq=2000000;
+kpReq=400000000;
+}
+else if(power >= 90000000){
+mortiReq=1500000;
+kpReq=350000000;
+}
+else if(power >= 80000000){
+mortiReq=1200000;
+kpReq=300000000;
+}
+else if(power >= 70000000){
+mortiReq=1000000;
+kpReq=200000000;
+}
+else if(power >= 60000000){
+mortiReq=800000;
+kpReq=100000000;
+}
+else if(power >= 50000000){
+mortiReq=500000;
+kpReq=55000000;
+}
+else{
+mortiReq=300000;
+kpReq=25000000;
+}
+
+let pm = (morti / mortiReq) * 100;
+let pk = (kp / kpReq) * 100;
+
+let dkp = ((pm + pk) / 2);
+
+players.push({
+id:id,
+nome:nome,
+power:power,
+morti:morti,
+kp:kp,
+dkp:dkp
+});
+
+}
+
+players.sort((a,b)=>b.dkp-a.dkp);
+
+let table = document.getElementById("ranking");
+
+let totalDKP = 0;
+let above100 = 0;
+let below50 = 0;
+
+players.forEach((p,i)=>{
+
+totalDKP += p.dkp;
+
+if(p.dkp >= 100) above100++;
+if(p.dkp < 50) below50++;
+
+let color="red";
+
+if(p.dkp>=50) color="gold";
+if(p.dkp>=80) color="green";
+if(p.dkp>=100) color="deepskyblue";
+
+let row = table.insertRow();
+
+row.insertCell(0).innerText = i+1;
+row.insertCell(1).innerText = p.id;
+row.insertCell(2).innerText = p.nome;
+row.insertCell(3).innerText = p.power.toLocaleString();
+row.insertCell(4).innerText = p.morti.toLocaleString();
+row.insertCell(5).innerText = p.kp.toLocaleString();
+
+let dkpCell = row.insertCell(6);
+dkpCell.innerText = p.dkp.toFixed(2)+"%";
+dkpCell.style.color = color;
+
+});
+
+let avg = totalDKP / players.length;
+
+document.getElementById("totPlayers").innerText = "Totale Player: "+players.length;
+document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
+document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
+document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
+
+}
+
+</script>
+
+</body>
+</html>
