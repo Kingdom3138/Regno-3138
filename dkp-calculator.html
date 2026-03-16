@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>DKP Calculator - Kingdom 3138</title>
+<title>Leadership Panel - Kingdom 3138</title>
 
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 
@@ -21,7 +21,7 @@ padding:40px;
 
 .box{
 background:white;
-max-width:700px;
+max-width:1100px;
 margin:auto;
 padding:30px;
 border-radius:16px;
@@ -29,27 +29,23 @@ border:2px solid #cfa93e;
 box-shadow:0 0 20px rgba(207,169,62,0.4);
 }
 
-h1{
-color:#cfa93e;
-}
+h1{color:#cfa93e;}
 
 input{
-padding:12px;
+padding:10px;
 font-size:18px;
 border-radius:8px;
 border:1px solid #ccc;
-width:200px;
 }
 
 button{
-padding:12px 20px;
+padding:10px 20px;
 font-size:18px;
 border-radius:10px;
 border:none;
 background:#cfa93e;
 color:white;
 cursor:pointer;
-margin-left:10px;
 }
 
 table{
@@ -68,16 +64,13 @@ background:#cfa93e;
 color:white;
 }
 
-#rdkp{
-font-weight:bold;
-font-size:22px;
+.stats{
+margin-top:20px;
+font-size:18px;
 }
 
-#gauge{
-width:260px;
-height:130px;
-margin:auto;
-margin-top:25px;
+#grafico{
+margin-top:30px;
 }
 
 </style>
@@ -88,43 +81,44 @@ margin-top:25px;
 
 <div class="box">
 
-<h1>DKP Calculator</h1>
+<h1>👑 Leadership Private Zone</h1>
 
-<p>Inserisci il tuo Player ID</p>
+<div id="login">
+<p>Inserisci la password leadership</p>
+<input type="password" id="pass">
+<button onclick="login()">Accedi</button>
+</div>
 
-<input id="playerID" placeholder="Player ID">
+<div id="panel" style="display:none;">
 
-<button onclick="cerca()">Calcola</button>
+<h2>Statistiche Regno</h2>
 
-<br><br>
+<div class="stats">
+<div id="totPlayers"></div>
+<div id="avgDKP"></div>
+<div id="above100"></div>
+<div id="below50"></div>
+</div>
 
-<a href="private-zone.html">
-<button style="background:#444;">
-PRIVATE ZONE
-</button>
-</a>
+<canvas id="grafico" height="120"></canvas>
 
-<div id="gauge"></div>
-
-<table id="risultato" style="display:none;">
+<table id="ranking">
 
 <tr>
+<th>Rank</th>
 <th>ID</th>
 <th>Nome</th>
-<th>Morti Totali</th>
+<th>Potere</th>
+<th>Morti</th>
 <th>KP</th>
-<th>Percentuale DKP</th>
-</tr>
-
-<tr>
-<td id="rid"></td>
-<td id="rnome"></td>
-<td id="rmorti"></td>
-<td id="rkp"></td>
-<td id="rdkp"></td>
+<th>DKP %</th>
+<th>% Morti</th>
+<th>% KP</th>
 </tr>
 
 </table>
+
+</div>
 
 </div>
 
@@ -132,164 +126,143 @@ PRIVATE ZONE
 
 <script>
 
+const PASSWORD = "3138leaders";
+
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLngmDm1JlOySiZYDlj411waYwB-nqXPs0poRn6PyPFiDHIWs4UMCJw4_rmGIyZxpumDp6xOs7iMAQ/pub?gid=1963599906&single=true&output=csv";
 
 const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQI0YbKeIe_pzwujvocelYi1tWy63MyKmieSatj2uBVORlAipQfYocqqZJLw_htYvtNbJww5PwoBfa/pub?gid=142693570&single=true&output=csv";
 
-async function cerca(){
+function login(){
+let p = document.getElementById("pass").value;
 
-let id = document.getElementById("playerID").value;
+if(p === PASSWORD){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
+carica();
+}else{
+alert("Password errata");
+}
+}
 
-/* POWER KVK */
+async function carica(){
+
 let powerMap = {};
-
 let responsePower = await fetch(sheetPowerURL);
 let dataPower = await responsePower.text();
 let rowsPower = dataPower.split("\n");
 
 for(let i=1;i<rowsPower.length;i++){
-
 let colsP = rowsPower[i].split(",");
-
-let idP = colsP[0];
-let powerP = parseInt(colsP[1].replace(/,/g,""));
-
-powerMap[idP] = powerP;
-
+powerMap[colsP[0]] = parseInt(colsP[1].replace(/,/g,""));
 }
 
-/* FOGLIO PRINCIPALE */
 let response = await fetch(sheetURL);
 let data = await response.text();
-
 let rows = data.split("\n");
+
+let players = [];
 
 for(let i=1;i<rows.length;i++){
 
 let cols = rows[i].split(",");
 
-let pid = cols[0];
+let id = cols[0];
 let nome = cols[1];
-
-let power = powerMap[pid];
+let power = powerMap[id];
 
 if(!power) continue;
+if(power < 50000000) continue;
 
-let mortiT5 = parseInt(cols[4].replace(/,/g,""));
-let mortiT4 = parseInt(cols[5].replace(/,/g,""));
-
-let morti = mortiT5 + mortiT4;
-
+let morti = parseInt(cols[4].replace(/,/g,"")) + parseInt(cols[5].replace(/,/g,""));
 let kp = parseInt(cols[6].replace(/,/g,""));
 
-if(pid == id){
+let mortiReq=0, kpReq=0;
 
-let mortiReq=0;
-let kpReq=0;
-
-if(power >= 100000000){
-mortiReq=2000000;
-kpReq=400000000;
-}
-else if(power >= 90000000){
-mortiReq=1500000;
-kpReq=350000000;
-}
-else if(power >= 80000000){
-mortiReq=1200000;
-kpReq=300000000;
-}
-else if(power >= 70000000){
-mortiReq=1000000;
-kpReq=200000000;
-}
-else if(power >= 60000000){
-mortiReq=800000;
-kpReq=100000000;
-}
-else if(power >= 50000000){
-mortiReq=500000;
-kpReq=55000000;
-}
-else{
-mortiReq=300000;
-kpReq=25000000;
-}
+if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
+else if(power >= 90000000){mortiReq=1500000; kpReq=350000000;}
+else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
+else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
+else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
+else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 
 let pm = (morti / mortiReq) * 100;
 let pk = (kp / kpReq) * 100;
+let dkp = (pm + pk) / 2;
 
-let percent = ((pm + pk) / 2);
-
-let percentRounded = percent.toFixed(2);
-
-let color = "";
-
-if(percent < 50){
-color = "red";
-}
-else if(percent < 80){
-color = "gold";
-}
-else if(percent < 100){
-color = "green";
-}
-else{
-color = "deepskyblue";
+players.push({id,nome,power,morti,kp,dkp,pm,pk});
 }
 
-document.getElementById("rid").innerText = pid;
-document.getElementById("rnome").innerText = nome;
-document.getElementById("rmorti").innerText = morti.toLocaleString();
-document.getElementById("rkp").innerText = kp.toLocaleString();
+players.sort((a,b)=>b.dkp-a.dkp);
 
-let dkpCell = document.getElementById("rdkp");
-dkpCell.innerText = percentRounded + "%";
-dkpCell.style.color = color;
+let table = document.getElementById("ranking");
 
-document.getElementById("risultato").style.display="table";
+let totalDKP=0, above100=0, below50=0;
 
-disegnaGauge(percent);
+/* GRAFICO */
+let fasce = [0,0,0,0];
 
-return;
+players.forEach((p,i)=>{
 
-}
+totalDKP += p.dkp;
+if(p.dkp>=100) above100++;
+if(p.dkp<50) below50++;
 
-}
-
-alert("Player non trovato");
-
-}
-
-function disegnaGauge(percent){
-
-document.getElementById("gauge").innerHTML='<canvas id="chart"></canvas>';
-
-let ctx=document.getElementById("chart").getContext("2d");
+if(p.dkp<50) fasce[0]++;
+else if(p.dkp<80) fasce[1]++;
+else if(p.dkp<100) fasce[2]++;
+else fasce[3]++;
 
 let color="red";
+if(p.dkp>=50) color="gold";
+if(p.dkp>=80) color="green";
+if(p.dkp>=100) color="deepskyblue";
 
-if(percent>=50) color="gold";
-if(percent>=80) color="green";
-if(percent>=100) color="deepskyblue";
+let row = table.insertRow();
 
-new Chart(ctx,{
-type:"doughnut",
+row.insertCell(0).innerText = i+1;
+row.insertCell(1).innerText = p.id;
+row.insertCell(2).innerText = p.nome;
+row.insertCell(3).innerText = p.power.toLocaleString();
+row.insertCell(4).innerText = p.morti.toLocaleString();
+row.insertCell(5).innerText = p.kp.toLocaleString();
+
+let dkpCell = row.insertCell(6);
+dkpCell.innerText = p.dkp.toFixed(2)+"%";
+dkpCell.style.color = color;
+
+/* % MORTI con highlight */
+let mortiCell = row.insertCell(7);
+mortiCell.innerText = p.pm.toFixed(1)+"%";
+
+if(p.pm > 50){
+mortiCell.style.color = "red";
+mortiCell.style.textDecoration = "underline";
+}
+
+/* % KP */
+row.insertCell(8).innerText = p.pk.toFixed(1)+"%";
+
+});
+
+let avg = totalDKP / players.length;
+
+document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.length;
+document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
+document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
+document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
+
+/* CREA GRAFICO */
+new Chart(document.getElementById("grafico"),{
+type:"bar",
 data:{
+labels:["<50%","50-79%","80-99%","100%+"],
 datasets:[{
-data:[percent,100-percent],
-backgroundColor:[color,"#eee"],
-borderWidth:0
+data:fasce
 }]
 },
 options:{
-rotation:-90,
-circumference:180,
-cutout:"70%",
-plugins:{
-legend:{display:false},
-tooltip:{enabled:false}
-}
+animation:{duration:1500},
+plugins:{legend:{display:false}}
 }
 });
 
