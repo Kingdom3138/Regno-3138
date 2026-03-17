@@ -17,6 +17,12 @@ font-family:'MedievalSharp',cursive;
 background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
 text-align:center;
 padding:40px;
+animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0;}
+to{opacity:1;}
 }
 
 .box{
@@ -27,6 +33,12 @@ padding:30px;
 border-radius:16px;
 border:2px solid #cfa93e;
 box-shadow:0 0 20px rgba(207,169,62,0.4);
+animation: scaleIn 0.6s ease;
+}
+
+@keyframes scaleIn{
+from{transform:scale(0.95); opacity:0;}
+to{transform:scale(1); opacity:1;}
 }
 
 h1{color:#cfa93e;}
@@ -52,6 +64,7 @@ table{
 margin-top:30px;
 width:100%;
 border-collapse:collapse;
+animation: fadeIn 1s ease;
 }
 
 td,th{
@@ -70,7 +83,8 @@ font-size:18px;
 }
 
 #grafico{
-margin-top:30px;
+max-width:400px;
+margin:30px auto;
 }
 
 </style>
@@ -98,9 +112,10 @@ margin-top:30px;
 <div id="avgDKP"></div>
 <div id="above100"></div>
 <div id="below50"></div>
+<div id="deathHeavyCount"></div>
 </div>
 
-<canvas id="grafico" height="120"></canvas>
+<canvas id="grafico"></canvas>
 
 <table id="ranking">
 
@@ -196,7 +211,7 @@ players.sort((a,b)=>b.dkp-a.dkp);
 
 let table = document.getElementById("ranking");
 
-let totalDKP=0, above100=0, below50=0;
+let totalDKP=0, above100=0, below50=0, deathHeavy=0;
 
 /* GRAFICO */
 let fasce = [0,0,0,0];
@@ -206,6 +221,8 @@ players.forEach((p,i)=>{
 totalDKP += p.dkp;
 if(p.dkp>=100) above100++;
 if(p.dkp<50) below50++;
+
+if(p.pm > (p.pk + 1)) deathHeavy++;
 
 if(p.dkp<50) fasce[0]++;
 else if(p.dkp<80) fasce[1]++;
@@ -230,11 +247,11 @@ let dkpCell = row.insertCell(6);
 dkpCell.innerText = p.dkp.toFixed(2)+"%";
 dkpCell.style.color = color;
 
-/* % MORTI con highlight */
+/* % MORTI */
 let mortiCell = row.insertCell(7);
 mortiCell.innerText = p.pm.toFixed(1)+"%";
 
-if(p.pm > 50){
+if(p.pm > (p.pk + 1)){
 mortiCell.style.color = "red";
 mortiCell.style.textDecoration = "underline";
 }
@@ -250,19 +267,27 @@ document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.le
 document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
 document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
 document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
+document.getElementById("deathHeavyCount").innerText = "Death Heavy: "+deathHeavy;
 
-/* CREA GRAFICO */
+/* GRAFICO FIGO */
 new Chart(document.getElementById("grafico"),{
-type:"bar",
+type:"doughnut",
 data:{
-labels:["<50%","50-79%","80-99%","100%+"],
+labels:["<50%","50-79%","80-99%","100%+","Death Heavy"],
 datasets:[{
-data:fasce
+data:[fasce[0],fasce[1],fasce[2],fasce[3],deathHeavy],
+backgroundColor:["red","gold","green","deepskyblue","black"]
 }]
 },
 options:{
-animation:{duration:1500},
-plugins:{legend:{display:false}}
+animation:{
+animateScale:true,
+duration:2000
+},
+plugins:{
+legend:{position:"bottom"}
+},
+cutout:"60%"
 }
 });
 
