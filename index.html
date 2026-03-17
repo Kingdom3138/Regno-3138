@@ -236,6 +236,35 @@
       border-radius: 10px;
       border: 2px solid #cfa93e;
     }
+
+    /* 🔥 NUOVO BOTTONE FIGMA */
+.figma-btn-container {
+  text-align:center; 
+  margin:40px 0;
+}
+
+.figma-btn {
+  background: #8D0599;
+  color: white;
+  padding: 18px 45px;
+  font-size: 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.figma-btn:hover {
+  background: #F046FF;
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(240, 70, 255, 0.6);
+}
+
+.figma-btn:active {
+  transform: scale(0.98);
+}
   </style>
 </head>
 <body>
@@ -344,26 +373,11 @@
     <div class="last-update">🕒 Ultimo aggiornamento: <span id="last-update">18/08/2025 22:47</span></div>
   </footer>
 
- <!-- QUI HO AGGIUNTO IL TUO BOTTONE FIGMA -->
-<div style="text-align:center; margin:40px 0;">
-
-  <a href="dkp-calculator.html" class="dkp-svg-btn">
-
-    <svg width="260" height="90" viewBox="0 0 260 90" xmlns="http://www.w3.org/2000/svg">
-
-      <defs>
-        <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#fff7d1"/>
-          <stop offset="100%" stop-color="#e6c85c"/>
-        </linearGradient>
-      </defs>
-
-      <rect x="5" y="5" rx="18" ry="18" width="250" height="80"
-        fill="url(#gradGold)" stroke="#cfa93e" stroke-width="3"/>
-
-      <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
-        font-family="MedievalSharp" font-size="20" fill="#2b2b2b">
-        🧮 DKP Calculator
+ <div class="figma-btn-container">
+  <a href="dkp-calculator.html">
+    <button class="figma-btn">DKP CALCULATOR</button>
+  </a>
+</div>
       </text>
 
     </svg>
