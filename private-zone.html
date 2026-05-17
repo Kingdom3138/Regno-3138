@@ -186,8 +186,8 @@ else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
 else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 else {mortiReq=300000; kpReq=25000000;}
 
-let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
-let pk = kpReq ? (kp / kpReq) * 100 : 0;
+let pm = (morti / mortiReq) * 100;
+let pk = (kp / kpReq) * 100;
 let dkp = (pm + pk) / 2;
 
 players.push({id,nome,power,morti,kp,dkp,pm,pk});
