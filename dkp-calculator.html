@@ -2,7 +2,6 @@
 <html lang="it">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -11,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 
 <style>
-
 body{
 font-family:'MedievalSharp',cursive;
 background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
@@ -29,9 +27,7 @@ border:2px solid #cfa93e;
 box-shadow:0 0 20px rgba(207,169,62,0.4);
 }
 
-h1{
-color:#cfa93e;
-}
+h1{color:#cfa93e;}
 
 input{
 padding:12px;
@@ -68,20 +64,13 @@ background:#cfa93e;
 color:white;
 }
 
-#rdkp{
-font-weight:bold;
-font-size:22px;
-}
-
 #gauge{
 width:260px;
 height:130px;
 margin:auto;
 margin-top:25px;
 }
-
 </style>
-
 </head>
 
 <body>
@@ -93,21 +82,17 @@ margin-top:25px;
 <p>Inserisci il tuo Player ID</p>
 
 <input id="playerID" placeholder="Player ID">
-
 <button onclick="cerca()">Calcola</button>
 
 <br><br>
 
 <a href="private-zone.html">
-<button style="background:#444;">
-PRIVATE ZONE
-</button>
+<button style="background:#444;">PRIVATE ZONE</button>
 </a>
 
 <div id="gauge"></div>
 
 <table id="risultato" style="display:none;">
-
 <tr>
 <th>ID</th>
 <th>Nome</th>
@@ -115,7 +100,6 @@ PRIVATE ZONE
 <th>KP</th>
 <th>Percentuale DKP</th>
 </tr>
-
 <tr>
 <td id="rid"></td>
 <td id="rnome"></td>
@@ -123,7 +107,6 @@ PRIVATE ZONE
 <td id="rkp"></td>
 <td id="rdkp"></td>
 </tr>
-
 </table>
 
 </div>
@@ -133,114 +116,76 @@ PRIVATE ZONE
 <script>
 
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&single=true&output=csv";
-
 const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&single=true&output=csv";
+
+function parseCSV(text){
+return text.trim().split("\n").map(r => r.split(","));
+}
 
 async function cerca(){
 
-let id = document.getElementById("playerID").value;
+const id = document.getElementById("playerID").value.trim();
 
-/* POWER KVK */
+/* POWER MAP */
 let powerMap = {};
 
 let responsePower = await fetch(sheetPowerURL);
 let dataPower = await responsePower.text();
-let rowsPower = dataPower.split("\n");
+let rowsPower = parseCSV(dataPower);
 
 for(let i=1;i<rowsPower.length;i++){
+let cols = rowsPower[i];
+if(!cols || cols.length < 2) continue;
 
-let colsP = rowsPower[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-
-if(!colsP) continue;
-
-let idP = colsP[0];
-let powerP = parseInt((colsP[1] || "0").replace(/,/g,""));
+let idP = (cols[0] || "").trim();
+let powerP = parseInt((cols[1] || "0").replace(/,/g,""));
 
 powerMap[idP] = powerP;
-
 }
 
-/* FOGLIO PRINCIPALE */
+/* MAIN SHEET */
 let response = await fetch(sheetURL);
 let data = await response.text();
-
-let rows = data.split("\n");
+let rows = parseCSV(data);
 
 for(let i=1;i<rows.length;i++){
 
-let cols = rows[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+let cols = rows[i];
+if(!cols || cols.length < 6) continue;
 
-if(!cols) continue;
-
-let pid = cols[0];
+let pid = (cols[0] || "").trim();
 let nome = cols[1];
 
 let power = powerMap[pid];
-
-if(!power) continue;
+if(power === undefined) continue;
 
 let mortiT5 = parseInt((cols[4] || "0").replace(/,/g,""));
 let mortiT4 = parseInt((cols[5] || "0").replace(/,/g,""));
+let kp = parseInt((cols[6] || "0").replace(/,/g,""));
+
+if(pid !== id) continue;
 
 let morti = mortiT5 + mortiT4;
 
-let kp = parseInt((cols[6] || "0").replace(/,/g,""));
-
-if(pid == id){
-
+/* REGOLE DKP */
 let mortiReq=0;
 let kpReq=0;
 
-if(power >= 100000000){
-mortiReq=2000000;
-kpReq=400000000;
-}
-else if(power >= 90000000){
-mortiReq=1500000;
-kpReq=350000000;
-}
-else if(power >= 80000000){
-mortiReq=1200000;
-kpReq=300000000;
-}
-else if(power >= 70000000){
-mortiReq=1000000;
-kpReq=200000000;
-}
-else if(power >= 60000000){
-mortiReq=800000;
-kpReq=100000000;
-}
-else if(power >= 50000000){
-mortiReq=500000;
-kpReq=55000000;
-}
-else{
-mortiReq=300000;
-kpReq=25000000;
-}
+if(power >= 100000000){mortiReq=2000000;kpReq=400000000;}
+else if(power >= 90000000){mortiReq=1500000;kpReq=350000000;}
+else if(power >= 80000000){mortiReq=1200000;kpReq=300000000;}
+else if(power >= 70000000){mortiReq=1000000;kpReq=200000000;}
+else if(power >= 60000000){mortiReq=800000;kpReq=100000000;}
+else if(power >= 50000000){mortiReq=500000;kpReq=55000000;}
+else{mortiReq=300000;kpReq=25000000;}
 
 let pm = (morti / mortiReq) * 100;
 let pk = (kp / kpReq) * 100;
+let percent = (pm + pk) / 2;
 
-let percent = ((pm + pk) / 2);
-
-let percentRounded = percent.toFixed(2);
-
-let color = "";
-
-if(percent < 50){
-color = "red";
-}
-else if(percent < 80){
-color = "gold";
-}
-else if(percent < 100){
-color = "green";
-}
-else{
-color = "deepskyblue";
-}
+let color = percent < 50 ? "red" :
+            percent < 80 ? "gold" :
+            percent < 100 ? "green" : "deepskyblue";
 
 document.getElementById("rid").innerText = pid;
 document.getElementById("rnome").innerText = nome;
@@ -248,34 +193,27 @@ document.getElementById("rmorti").innerText = morti.toLocaleString();
 document.getElementById("rkp").innerText = kp.toLocaleString();
 
 let dkpCell = document.getElementById("rdkp");
-dkpCell.innerText = percentRounded + "%";
+dkpCell.innerText = percent.toFixed(2) + "%";
 dkpCell.style.color = color;
 
-document.getElementById("risultato").style.display="table";
+document.getElementById("risultato").style.display = "table";
 
 disegnaGauge(percent);
-
 return;
-
-}
-
 }
 
 alert("Player non trovato");
-
 }
 
 function disegnaGauge(percent){
 
-document.getElementById("gauge").innerHTML='<canvas id="chart"></canvas>';
+document.getElementById("gauge").innerHTML = '<canvas id="chart"></canvas>';
 
-let ctx=document.getElementById("chart").getContext("2d");
+let ctx = document.getElementById("chart").getContext("2d");
 
-let color="red";
-
-if(percent>=50) color="gold";
-if(percent>=80) color="green";
-if(percent>=100) color="deepskyblue";
+let color = percent < 50 ? "red" :
+            percent < 80 ? "gold" :
+            percent < 100 ? "green" : "deepskyblue";
 
 new Chart(ctx,{
 type:"doughnut",
@@ -290,10 +228,7 @@ options:{
 rotation:-90,
 circumference:180,
 cutout:"70%",
-plugins:{
-legend:{display:false},
-tooltip:{enabled:false}
-}
+plugins:{legend:{display:false},tooltip:{enabled:false}}
 }
 });
 
