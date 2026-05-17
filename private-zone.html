@@ -4,7 +4,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Leadership Panel - Kingdom 3138</title>
 
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
@@ -15,10 +14,7 @@ font-family:'MedievalSharp',cursive;
 background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
 text-align:center;
 padding:40px;
-animation: fadeIn 1s ease;
 }
-
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
 .box{
 background:white;
@@ -124,17 +120,9 @@ margin:30px auto;
 
 const PASSWORD = "3138leaders";
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&single=true&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&output=csv";
 
-const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&single=true&output=csv";
-
-function parseCSV(text){
-return text.trim().split("\n").map(r => r.split(","));
-}
-
-function safeInt(v){
-return parseInt((v || "0").replace(/,/g,"")) || 0;
-}
+const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&output=csv";
 
 function login(){
 let p = document.getElementById("pass").value;
@@ -152,43 +140,41 @@ async function carica(){
 
 let powerMap = {};
 
-let resP = await fetch(sheetPowerURL);
-let rowsP = parseCSV(await resP.text());
+// POWER
+let r1 = await fetch(sheetPowerURL);
+let t1 = await r1.text();
+let rowsP = t1.trim().split("\n");
 
 for(let i=1;i<rowsP.length;i++){
-let cols = rowsP[i];
-if(!cols || cols.length < 2) continue;
-
-let id = (cols[0] || "").trim();
-let power = safeInt(cols[1]);
-
+let c = rowsP[i].split(",");
+let id = c[0];
+let power = parseInt((c[1] || "0").replace(/,/g,"")) || 0;
 if(id) powerMap[id] = power;
 }
 
-let res = await fetch(sheetURL);
-let rows = parseCSV(await res.text());
+// MAIN
+let r2 = await fetch(sheetURL);
+let t2 = await r2.text();
+let rows = t2.trim().split("\n");
 
 let players = [];
 
 for(let i=1;i<rows.length;i++){
 
-let cols = rows[i];
-if(!cols || cols.length < 6) continue;
+let cols = rows[i].split(",");
 
-let id = (cols[0] || "").trim();
-let nome = cols[1] || "";
+let id = cols[0];
+let nome = cols[1];
 
-let power = powerMap[id];
-if(power === undefined) power = 0;
+let power = powerMap[id] || 0;
 
+// 🔴 FIX: NON bloccare player come nel file nuovo
 if(power && power < 50000000) continue;
 
-let morti = safeInt(cols[4]) + safeInt(cols[5]);
-let kp = safeInt(cols[6]);
+let morti = (parseInt(cols[4]) || 0) + (parseInt(cols[5]) || 0);
+let kp = parseInt(cols[6]) || 0;
 
-morti = Number(morti) || 0;
-kp = Number(kp) || 0;
-
+// DKP req
 let mortiReq=0, kpReq=0;
 
 if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
@@ -198,11 +184,9 @@ else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
 else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
 else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 
-let pm = 0;
-let pk = 0;
-
-if(mortiReq > 0) pm = (morti / mortiReq) * 100;
-if(kpReq > 0) pk = (kp / kpReq) * 100;
+// 🔥 FIX DKP CORRETTO
+let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
+let pk = kpReq ? (kp / kpReq) * 100 : 0;
 
 let dkp = (pm + pk) / 2;
 
@@ -212,20 +196,6 @@ players.push({id,nome,power,morti,kp,dkp,pm,pk});
 players.sort((a,b)=>b.dkp-a.dkp);
 
 let table = document.getElementById("ranking");
-
-table.innerHTML = `
-<tr>
-<th>Rank</th>
-<th>ID</th>
-<th>Nome</th>
-<th>Potere</th>
-<th>Morti</th>
-<th>KP</th>
-<th>DKP %</th>
-<th>% Morti</th>
-<th>% KP</th>
-</tr>
-`;
 
 let totalDKP=0, above100=0, below50=0, deathHeavy=0;
 let fasce=[0,0,0,0];
@@ -263,15 +233,12 @@ row.insertCell(8).innerText = p.pk.toFixed(1)+"%";
 
 });
 
-let avg = players.length ? totalDKP / players.length : 0;
-
 document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.length;
-document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
+document.getElementById("avgDKP").innerText = "DKP Medio: "+(totalDKP/players.length).toFixed(2)+"%";
 document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
 document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
 document.getElementById("deathHeavyCount").innerText = "Death Heavy: "+deathHeavy;
 
-if(players.length > 0){
 new Chart(document.getElementById("grafico"),{
 type:"doughnut",
 data:{
@@ -286,7 +253,6 @@ cutout:"60%",
 plugins:{legend:{position:"bottom"}}
 }
 });
-}
 
 }
 
