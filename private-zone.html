@@ -1,228 +1,152 @@
-<!DOCTYPE html>
-<html lang="it">
-
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Leadership Panel - Kingdom 3138</title>
-
-<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
-<style>
-body{
-font-family:'MedievalSharp',cursive;
-background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
-text-align:center;
-padding:40px;
-}
-
-.box{
-background:white;
-max-width:1100px;
-margin:auto;
-padding:30px;
-border-radius:16px;
-border:2px solid #cfa93e;
-}
-
-h1{color:#cfa93e;}
-
-input,button{
-padding:10px;
-font-size:18px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-button{
-border:none;
-background:#cfa93e;
-color:white;
-cursor:pointer;
-}
-
-table{
-margin-top:30px;
-width:100%;
-border-collapse:collapse;
-}
-
-td,th{
-border:1px solid #ddd;
-padding:10px;
-}
-
-th{
-background:#cfa93e;
-color:white;
-}
-
-#debug{
-margin-top:20px;
-font-size:14px;
-color:#333;
-white-space:pre-wrap;
-text-align:left;
-background:#f5f5f5;
-padding:10px;
-border-radius:8px;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="box">
-
-<h1>Leadership Panel</h1>
-
-<div id="login">
-<input type="password" id="pass" placeholder="Password">
-<button onclick="login()">Accedi</button>
-</div>
-
-<div id="panel" style="display:none;">
-
-<h2>Ranking DKP</h2>
-
-<table id="ranking">
-<tr>
-<th>Rank</th>
-<th>ID</th>
-<th>Nome</th>
-<th>Power</th>
-<th>Morti</th>
-<th>KP</th>
-<th>DKP %</th>
-</tr>
-</table>
-
-<div id="debug"></div>
-
-</div>
-
-</div>
-
 <script>
 
 const PASSWORD = "3138leaders";
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&single=true&output=csv";
 
-const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&output=csv";
+const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&single=true&output=csv";
 
 function parseCSV(text){
-return text.trim().split("\n").map(r => r.split(","));
+  return text.trim().split("\n").map(r => r.split(","));
+}
+
+function clean(v){
+  return (v || "").toString().replace(/\r/g,"").trim();
+}
+
+function safeInt(v){
+  let n = parseInt(clean(v).replace(/,/g,""));
+  return isNaN(n) ? 0 : n;
 }
 
 function login(){
-if(document.getElementById("pass").value === PASSWORD){
-document.getElementById("login").style.display="none";
-document.getElementById("panel").style.display="block";
-carica();
-}else{
-alert("Password errata");
-}
-}
+  let p = document.getElementById("pass").value;
 
-function safe(v){
-return parseInt((v || "0").replace(/,/g,"")) || 0;
+  if(p === PASSWORD){
+    document.getElementById("login").style.display="none";
+    document.getElementById("panel").style.display="block";
+    carica();
+  } else {
+    alert("Password errata");
+  }
 }
 
 async function carica(){
 
-let debug = "";
+  let powerMap = {};
 
-let powerMap = {};
+  let responsePower = await fetch(sheetPowerURL);
+  let rowsPower = parseCSV(await responsePower.text());
 
-let p = await fetch(sheetPowerURL).then(r=>r.text());
-let powerRows = parseCSV(p);
+  for(let i=1;i<rowsPower.length;i++){
+    let cols = rowsPower[i];
+    if(!cols || cols.length < 2) continue;
 
-for(let i=1;i<powerRows.length;i++){
-let c = powerRows[i];
-if(!c) continue;
-powerMap[c[0]] = safe(c[1]);
-}
+    let id = clean(cols[0]);
+    let power = safeInt(cols[1]);
 
-let r = await fetch(sheetURL).then(r=>r.text());
-let rows = parseCSV(r);
+    powerMap[id] = power;
+  }
 
-let players = [];
+  let response = await fetch(sheetURL);
+  let rows = parseCSV(await response.text());
 
-for(let i=1;i<rows.length;i++){
+  let players = [];
 
-let c = rows[i];
-if(!c) continue;
+  for(let i=1;i<rows.length;i++){
 
-let id = c[0];
-let nome = c[1];
+    let cols = rows[i];
+    if(!cols || cols.length < 6) continue;
 
-let power = powerMap[id] || 0;
+    let id = clean(cols[0]);
+    let nome = clean(cols[1]);
 
-/* 🔥 DEBUG: vedi cosa arriva davvero */
-let v4 = safe(c[4]);
-let v5 = safe(c[5]);
-let v6 = safe(c[6]);
+    let power = powerMap[id];
 
-debug += `ID:${id} | P:${power} | T5:${v4} | T4:${v5} | KP:${v6}\n`;
+    if(power === undefined) continue;
+    if(power < 50000000) continue;
 
-let morti = v4 + v5;
-let kp = v6;
+    let morti = safeInt(cols[4]) + safeInt(cols[5]);
+    let kp = safeInt(cols[6]);
 
-/* DKP REQ */
-let mortiReq=0, kpReq=0;
+    let mortiReq=0, kpReq=0;
 
-if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
-else if(power >= 90000000){mortiReq=1500000; kpReq=350000000;}
-else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
-else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
-else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
-else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
+    if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
+    else if(power >= 90000000){mortiReq=1500000; kpReq=350000000;}
+    else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
+    else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
+    else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
+    else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 
-/* DKP SAFE */
-let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
-let pk = kpReq ? (kp / kpReq) * 100 : 0;
-let dkp = (pm + pk) / 2;
+    let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
+    let pk = kpReq ? (kp / kpReq) * 100 : 0;
 
-players.push({id,nome,power,morti,kp,dkp});
-}
+    let dkp = (pm + pk) / 2;
 
-let table = document.getElementById("ranking");
+    players.push({id,nome,power,morti,kp,dkp,pm,pk});
+  }
 
-table.innerHTML = `
-<tr>
-<th>Rank</th>
-<th>ID</th>
-<th>Nome</th>
-<th>Power</th>
-<th>Morti</th>
-<th>KP</th>
-<th>DKP %</th>
-</tr>
-`;
+  players.sort((a,b)=>b.dkp-a.dkp);
 
-players.sort((a,b)=>b.dkp-a.dkp);
+  let table = document.getElementById("ranking");
 
-players.forEach((p,i)=>{
+  table.innerHTML = `
+    <tr>
+      <th>Rank</th>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Potere</th>
+      <th>Morti</th>
+      <th>KP</th>
+      <th>DKP %</th>
+      <th>% Morti</th>
+      <th>% KP</th>
+    </tr>
+  `;
 
-let row = table.insertRow();
-row.insertCell(0).innerText = i+1;
-row.insertCell(1).innerText = p.id;
-row.insertCell(2).innerText = p.nome;
-row.insertCell(3).innerText = p.power;
-row.insertCell(4).innerText = p.morti;
-row.insertCell(5).innerText = p.kp;
-row.insertCell(6).innerText = p.dkp.toFixed(2)+"%";
+  let totalDKP=0, above100=0, below50=0, deathHeavy=0;
+  let fasce=[0,0,0,0];
 
-});
+  players.forEach((p,i)=>{
 
-document.getElementById("debug").innerText = debug;
+    totalDKP += p.dkp;
 
+    if(p.dkp>=100) above100++;
+    if(p.dkp<50) below50++;
+    if(p.pm > p.pk+1) deathHeavy++;
+
+    if(p.dkp<50) fasce[0]++;
+    else if(p.dkp<80) fasce[1]++;
+    else if(p.dkp<100) fasce[2]++;
+    else fasce[3]++;
+
+    let color = p.dkp<50?"red":p.dkp<80?"gold":p.dkp<100?"green":"deepskyblue";
+
+    let row = table.insertRow();
+
+    row.insertCell(0).innerText = i+1;
+    row.insertCell(1).innerText = p.id;
+    row.insertCell(2).innerText = p.nome;
+    row.insertCell(3).innerText = p.power.toLocaleString();
+    row.insertCell(4).innerText = p.morti.toLocaleString();
+    row.insertCell(5).innerText = p.kp.toLocaleString();
+
+    let c6 = row.insertCell(6);
+    c6.innerText = p.dkp.toFixed(2)+"%";
+    c6.style.color = color;
+
+    row.insertCell(7).innerText = p.pm.toFixed(1)+"%";
+    row.insertCell(8).innerText = p.pk.toFixed(1)+"%";
+
+  });
+
+  let avg = players.length ? totalDKP / players.length : 0;
+
+  document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.length;
+  document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
+  document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
+  document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
+  document.getElementById("deathHeavyCount").innerText = "Death Heavy: "+deathHeavy;
 }
 
 </script>
-
-</body>
-</html>
