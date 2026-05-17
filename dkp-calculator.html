@@ -149,10 +149,12 @@ let rowsPower = dataPower.split("\n");
 
 for(let i=1;i<rowsPower.length;i++){
 
-let cols = rows[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+let colsP = rowsPower[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+
+if(!colsP) continue;
 
 let idP = colsP[0];
-let powerP = parseInt(colsP[1].replace(/,/g,""));
+let powerP = parseInt((colsP[1] || "0").replace(/,/g,""));
 
 powerMap[idP] = powerP;
 
@@ -166,7 +168,9 @@ let rows = data.split("\n");
 
 for(let i=1;i<rows.length;i++){
 
-let cols = rows[i].split(",");
+let cols = rows[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+
+if(!cols) continue;
 
 let pid = cols[0];
 let nome = cols[1];
