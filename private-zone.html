@@ -152,11 +152,11 @@ async function carica(){
 
 let powerMap = {};
 
-let responsePower = await fetch(sheetPowerURL);
-let rowsPower = parseCSV(await responsePower.text());
+let resP = await fetch(sheetPowerURL);
+let rowsP = parseCSV(await resP.text());
 
-for(let i=1;i<rowsPower.length;i++){
-let cols = rowsPower[i];
+for(let i=1;i<rowsP.length;i++){
+let cols = rowsP[i];
 if(!cols || cols.length < 2) continue;
 
 let id = (cols[0] || "").trim();
@@ -165,8 +165,8 @@ let power = safeInt(cols[1]);
 if(id) powerMap[id] = power;
 }
 
-let response = await fetch(sheetURL);
-let rows = parseCSV(await response.text());
+let res = await fetch(sheetURL);
+let rows = parseCSV(await res.text());
 
 let players = [];
 
@@ -186,6 +186,9 @@ if(power && power < 50000000) continue;
 let morti = safeInt(cols[4]) + safeInt(cols[5]);
 let kp = safeInt(cols[6]);
 
+morti = Number(morti) || 0;
+kp = Number(kp) || 0;
+
 let mortiReq=0, kpReq=0;
 
 if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
@@ -195,8 +198,11 @@ else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
 else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
 else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
 
-let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
-let pk = kpReq ? (kp / kpReq) * 100 : 0;
+let pm = 0;
+let pk = 0;
+
+if(mortiReq > 0) pm = (morti / mortiReq) * 100;
+if(kpReq > 0) pk = (kp / kpReq) * 100;
 
 let dkp = (pm + pk) / 2;
 
