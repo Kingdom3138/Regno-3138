@@ -14,10 +14,7 @@ font-family:'MedievalSharp',cursive;
 background: radial-gradient(circle,#d4f1ff 0%,#89cff0 100%);
 text-align:center;
 padding:40px;
-animation: fadeIn 1s ease;
 }
-
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
 .box{
 background:white;
@@ -61,17 +58,11 @@ background:#cfa93e;
 color:white;
 }
 
-.stats{
-margin-top:20px;
-font-size:18px;
-}
-
 #grafico{
 max-width:400px;
 margin:30px auto;
 }
 </style>
-
 </head>
 
 <body>
@@ -123,15 +114,11 @@ margin:30px auto;
 
 const PASSWORD = "3138leaders";
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnIW_-bph63gX5dXIBclrOBCGOfD7bh98u8uxQLS3kdLx2lZ9ZM3YHtNxNXyBR-oPR9kH7yYZjuIM5/pub?gid=523155659&single=true&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&single=true&output=csv";
 
-const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo_eJ3z4xPtR50thD4Uxwtk2QMkzsR68BsbP0KQXg11D7RCaWfdNeWiu_0iVlEj4FXBq0JYkXTOk2/pub?gid=1766737411&single=true&output=csv";
+const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDR4iR8klxkCMwz6JCWaumuBHQH85TJmBGUUHw520KYwJ5cKjFvt2g3BZGPOLBS1EllZtXStAbv618/pub?gid=1432291627&single=true&output=csv";
 
-function parseCSV(text){
-return text.trim().replace(/\r/g,"").split("\n").map(r => r.split(","));
-}
-
-function clean(v){
+function norm(v){
 return (v || "").toString().trim();
 }
 
@@ -157,35 +144,34 @@ let powerMap = {};
 
 /* POWER SHEET */
 let responsePower = await fetch(sheetPowerURL);
-let rowsPower = parseCSV(await responsePower.text());
+let dataPower = await responsePower.text();
+let rowsPower = dataPower.trim().split(/\r?\n/);
 
 for(let i=1;i<rowsPower.length;i++){
-let cols = rowsPower[i];
-if(!cols || cols.length < 2) continue;
+let cols = rowsPower[i].split(",");
 
-let id = clean(cols[0]);
+let id = norm(cols[0]);
 let power = safeInt(cols[1]);
 
-if(id) powerMap[id] = power;
+powerMap[id] = power;
 }
 
 /* MAIN SHEET */
 let response = await fetch(sheetURL);
-let rows = parseCSV(await response.text());
+let data = await response.text();
+let rows = data.trim().split(/\r?\n/);
 
 let players = [];
 
 for(let i=1;i<rows.length;i++){
 
-let cols = rows[i];
-if(!cols || cols.length < 6) continue;
+let cols = rows[i].split(",");
 
-let id = clean(cols[0]);
-let nome = cols[1];
+let id = norm(cols[0]);
+let nome = cols[1] || "N/A";
 
 let power = powerMap[id];
-if(power === undefined) continue;
-if(power < 50000000) continue;
+if(power === undefined) power = 0;
 
 let morti = safeInt(cols[4]) + safeInt(cols[5]);
 let kp = safeInt(cols[6]);
@@ -198,6 +184,7 @@ else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
 else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
 else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
 else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
+else {mortiReq=300000; kpReq=25000000;}
 
 let pm = mortiReq ? (morti / mortiReq) * 100 : 0;
 let pk = kpReq ? (kp / kpReq) * 100 : 0;
@@ -208,7 +195,9 @@ players.push({id,nome,power,morti,kp,dkp,pm,pk});
 
 players.sort((a,b)=>b.dkp-a.dkp);
 
+/* TABLE */
 let table = document.getElementById("ranking");
+
 table.innerHTML = `
 <tr>
 <th>Rank</th>
@@ -232,7 +221,7 @@ totalDKP += p.dkp;
 
 if(p.dkp>=100) above100++;
 if(p.dkp<50) below50++;
-if(p.pm > p.pk+1) deathHeavy++;
+if(p.pm > p.pk + 1) deathHeavy++;
 
 if(p.dkp<50) fasce[0]++;
 else if(p.dkp<80) fasce[1]++;
@@ -267,6 +256,7 @@ document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
 document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
 document.getElementById("deathHeavyCount").innerText = "Death Heavy: "+deathHeavy;
 
+/* CHART */
 new Chart(document.getElementById("grafico"),{
 type:"doughnut",
 data:{
