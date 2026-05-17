@@ -118,15 +118,27 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQesM-QGA4rXJ1
 
 const sheetPowerURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ9KTvq0UD32FiVPhO71anmWvYsUmkow7PF7N0oOw6G1IVDfI7rDGa3ChUjPKjxxVumuFqWEwRtu-t/pub?gid=1714169856&single=true&output=csv";
 
-function norm(v){
-return (v || "").toString().trim();
+function clean(v){
+return (v || "")
+.toString()
+.replace(/"/g,"")
+.replace(/\r/g,"")
+.trim();
 }
 
 function safeInt(v){
-return parseInt((v || "0").toString().replace(/,/g,"")) || 0;
+return parseInt(
+(v || "")
+.toString()
+.replace(/"/g,"")
+.replace(/,/g,"")
+.replace(/\r/g,"")
+.trim()
+) || 0;
 }
 
 function login(){
+
 let p = document.getElementById("pass").value;
 
 if(p === PASSWORD){
@@ -136,6 +148,7 @@ carica();
 }else{
 alert("Password errata");
 }
+
 }
 
 async function carica(){
@@ -148,12 +161,16 @@ let dataPower = await responsePower.text();
 let rowsPower = dataPower.trim().split(/\r?\n/);
 
 for(let i=1;i<rowsPower.length;i++){
+
 let cols = rowsPower[i].split(",");
 
-let id = norm(cols[0]);
-let power = safeInt(cols[1]);
+let id = clean(cols[0]);
+
+/* POWER = COLONNA 2 */
+let power = safeInt(cols[2]);
 
 powerMap[id] = power;
+
 }
 
 /* MAIN SHEET */
@@ -167,30 +184,66 @@ for(let i=1;i<rows.length;i++){
 
 let cols = rows[i].split(",");
 
-let id = norm(cols[0]);
-let nome = cols[1] || "N/A";
+let id = clean(cols[0]);
+let nome = clean(cols[1]) || "N/A";
 
 let power = powerMap[id];
+
 if(power === undefined) power = 0;
 
+/* MORTI */
 let morti = safeInt(cols[4]) + safeInt(cols[5]);
+
+/* KP */
 let kp = safeInt(cols[6]);
 
 let mortiReq=0, kpReq=0;
 
-if(power >= 100000000){mortiReq=2000000; kpReq=400000000;}
-else if(power >= 90000000){mortiReq=1500000; kpReq=350000000;}
-else if(power >= 80000000){mortiReq=1200000; kpReq=300000000;}
-else if(power >= 70000000){mortiReq=1000000; kpReq=200000000;}
-else if(power >= 60000000){mortiReq=800000; kpReq=100000000;}
-else if(power >= 50000000){mortiReq=500000; kpReq=55000000;}
-else {mortiReq=300000; kpReq=25000000;}
+if(power >= 100000000){
+mortiReq=2000000;
+kpReq=400000000;
+}
+else if(power >= 90000000){
+mortiReq=1500000;
+kpReq=350000000;
+}
+else if(power >= 80000000){
+mortiReq=1200000;
+kpReq=300000000;
+}
+else if(power >= 70000000){
+mortiReq=1000000;
+kpReq=200000000;
+}
+else if(power >= 60000000){
+mortiReq=800000;
+kpReq=100000000;
+}
+else if(power >= 50000000){
+mortiReq=500000;
+kpReq=55000000;
+}
+else{
+mortiReq=300000;
+kpReq=25000000;
+}
 
+/* FORMULA DKP */
 let pm = (morti / mortiReq) * 100;
 let pk = (kp / kpReq) * 100;
 let dkp = (pm + pk) / 2;
 
-players.push({id,nome,power,morti,kp,dkp,pm,pk});
+players.push({
+id,
+nome,
+power,
+morti,
+kp,
+dkp,
+pm,
+pk
+});
+
 }
 
 players.sort((a,b)=>b.dkp-a.dkp);
@@ -212,7 +265,11 @@ table.innerHTML = `
 </tr>
 `;
 
-let totalDKP=0, above100=0, below50=0, deathHeavy=0;
+let totalDKP=0;
+let above100=0;
+let below50=0;
+let deathHeavy=0;
+
 let fasce=[0,0,0,0];
 
 players.forEach((p,i)=>{
@@ -221,6 +278,7 @@ totalDKP += p.dkp;
 
 if(p.dkp>=100) above100++;
 if(p.dkp<50) below50++;
+
 if(p.pm > p.pk + 1) deathHeavy++;
 
 if(p.dkp<50) fasce[0]++;
@@ -228,7 +286,11 @@ else if(p.dkp<80) fasce[1]++;
 else if(p.dkp<100) fasce[2]++;
 else fasce[3]++;
 
-let color = p.dkp<50?"red":p.dkp<80?"gold":p.dkp<100?"green":"deepskyblue";
+let color =
+p.dkp<50 ? "red" :
+p.dkp<80 ? "gold" :
+p.dkp<100 ? "green" :
+"deepskyblue";
 
 let row = table.insertRow();
 
@@ -250,11 +312,20 @@ row.insertCell(8).innerText = p.pk.toFixed(1)+"%";
 
 let avg = players.length ? totalDKP / players.length : 0;
 
-document.getElementById("totPlayers").innerText = "Totale Fighters: "+players.length;
-document.getElementById("avgDKP").innerText = "DKP Medio: "+avg.toFixed(2)+"%";
-document.getElementById("above100").innerText = "Player sopra 100%: "+above100;
-document.getElementById("below50").innerText = "Player sotto 50%: "+below50;
-document.getElementById("deathHeavyCount").innerText = "Death Heavy: "+deathHeavy;
+document.getElementById("totPlayers").innerText =
+"Totale Fighters: "+players.length;
+
+document.getElementById("avgDKP").innerText =
+"DKP Medio: "+avg.toFixed(2)+"%";
+
+document.getElementById("above100").innerText =
+"Player sopra 100%: "+above100;
+
+document.getElementById("below50").innerText =
+"Player sotto 50%: "+below50;
+
+document.getElementById("deathHeavyCount").innerText =
+"Death Heavy: "+deathHeavy;
 
 /* CHART */
 new Chart(document.getElementById("grafico"),{
@@ -268,7 +339,11 @@ backgroundColor:["red","gold","green","deepskyblue"]
 },
 options:{
 cutout:"60%",
-plugins:{legend:{position:"bottom"}}
+plugins:{
+legend:{
+position:"bottom"
+}
+}
 }
 });
 
