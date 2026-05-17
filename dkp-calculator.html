@@ -149,7 +149,7 @@ let rowsPower = dataPower.split("\n");
 
 for(let i=1;i<rowsPower.length;i++){
 
-let colsP = rowsPower[i].split(",");
+let cols = rows[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
 
 let idP = colsP[0];
 let powerP = parseInt(colsP[1].replace(/,/g,""));
@@ -175,12 +175,12 @@ let power = powerMap[pid];
 
 if(!power) continue;
 
-let mortiT5 = parseInt(cols[4].replace(/,/g,""));
-let mortiT4 = parseInt(cols[5].replace(/,/g,""));
+let mortiT5 = parseInt((cols[4] || "0").replace(/,/g,""));
+let mortiT4 = parseInt((cols[5] || "0").replace(/,/g,""));
 
 let morti = mortiT5 + mortiT4;
 
-let kp = parseInt(cols[6].replace(/,/g,""));
+let kp = parseInt((cols[6] || "0").replace(/,/g,""));
 
 if(pid == id){
 
