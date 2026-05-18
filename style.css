@@ -307,93 +307,91 @@ flex-direction:column;
 
 }
 
-/* ===== MOBILE ===== */
+/* ================= MOBILE ================= */
 
-@media (max-width:768px){
+@media screen and (max-width:768px){
 
 nav{
-padding:15px;
-
 flex-direction:column;
-
-gap:15px;
-}
-
-nav ul{
-
-flex-wrap:wrap;
-
-justify-content:center;
-
+padding:15px;
 gap:15px;
 }
 
 .logo-area{
 flex-direction:column;
 text-align:center;
+gap:10px;
 }
 
 .logo-area img{
-width:60px;
-height:60px;
+width:90px;
+height:90px;
+}
+
+.logo-text h2{
+font-size:20px;
+}
+
+.logo-text p{
+font-size:14px;
+}
+
+nav ul{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:18px;
+padding:0;
+}
+
+nav ul li{
+font-size:14px;
+}
+
+.discord-btn{
+padding:18px 50px;
+font-size:18px;
+width:fit-content;
 }
 
 .hero{
-
-padding:20px;
+padding-top:350px;
+min-height:auto;
 
 background-size:cover;
+background-position:center;
+}
+
+.hero-logo{
+width:280px !important;
+max-width:80%;
+}
+
+.realm{
+font-size:18px;
+letter-spacing:4px;
 }
 
 .hero h1{
-font-size:38px;
+font-size:42px;
 line-height:1.1;
+padding:0 15px;
 }
 
 .subtitle{
 font-size:16px;
-padding:0 15px;
-}
-
-.buttons{
-
-flex-direction:column;
-
-width:100%;
-
-align-items:center;
-}
-
-.btn,
-button{
-
-width:90%;
-max-width:320px;
+padding:0 20px;
+line-height:1.5;
 }
 
 .cards{
-
 grid-template-columns:1fr;
-
-padding:25px;
+padding:30px;
+gap:20px;
 }
 
 .card{
 padding:25px;
-}
-
-table{
-
-display:block;
-
-overflow-x:auto;
-
-white-space:nowrap;
-}
-
-.stats{
-
-grid-template-columns:1fr;
 }
 
 }
